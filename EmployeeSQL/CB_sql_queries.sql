@@ -113,7 +113,7 @@ SELECT * FROM dept_manager; -- 3
 SELECT * FROM employees; ----- 4
 SELECT * FROM salaries; ------ 5
 SELECT * FROM titles; -------- 6
--- NEW TABLES 7-10                           #
+-- NEW TABLES 7-17                           #
 SELECT * FROM employee_salary; ------------- 7 --- Data Analysis #1
 SELECT * FROM eightysix_employees; --------- 8 --- Data Analysis #2
 SELECT * FROM manager_department; ---------- 9
@@ -125,6 +125,10 @@ SELECT * FROM employee_hercules_b; --------- 14 -- Data Analysis #5
 SELECT * FROM employee_sales_dept; --------- 15 -- Data Analysis #6
 SELECT * FROM employee_salesdev_dept; ------ 16 -- Data Analysis #7
 SELECT * FROM last_name_count; ------------- 17 -- Data Analysis #8
+-- BONUS TABLES 18-20
+SELECT * FROM new_titles; ------------------ 18 -- BONUS
+SELECT * FROM employee_titles; ------------- 19 -- BONUS
+SELECT * FROM titles_salaries; ------------- 20 -- BONUS FINAL
 
 
 -- ***********************
@@ -262,10 +266,48 @@ COUNT(last_name) DESC;
 
 SELECT * FROM last_name_count;
 
+
+
+-- *********************
+-- ******* BONUS *******
+-- *********************
+
+
+-- Make new_titles table to make adjustments for bonus.
+
 /*
-SELECT last_name, COUNT(last_name)AS Frequency
-FROM employee_department_info
-GROUP BY last_name                                   -- Note: When I ran from employee_department_info I got a different result?
-ORDER BY
-COUNT(last_name) DESC;
+CREATE TABLE new_titles(
+	ID serial PRIMARY KEY,
+	title_id VARCHAR,
+	title VARCHAR
+);
+
+INSERT INTO new_titles SELECT * FROM titles;
+
+ALTER TABLE new_titles
+RENAME COLUMN title_id TO emp_title;
 */
+
+SELECT * FROM new_titles;
+
+-- Merge new_titles and employees to create employee_titles.
+
+DROP TABLE IF EXISTS employee_titles;
+SELECT employees.emp_no, employees.last_name, employees.first_name, new_titles.title
+INTO employee_titles
+FROM new_titles
+INNER JOIN employees ON
+new_titles.emp_title=employees.emp_title;
+
+SELECT * FROM employee_titles;
+
+-- Merge employee_titles and salaries to create titles_salaries.
+
+DROP TABLE IF EXISTS titles_salaries;
+SELECT employee_titles.emp_no, employee_titles.last_name, employee_titles.first_name, employee_titles.title, salaries.salary
+INTO titles_salaries
+FROM employee_titles
+INNER JOIN salaries ON
+employee_titles.emp_no=salaries.emp_no;
+
+SELECT * FROM titles_salaries;
